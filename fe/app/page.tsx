@@ -8,6 +8,7 @@ import {
   assertTokenAccess,
   claimBasicToken,
   claimProToken,
+  validateStoredToken,
   type TokenTier,
   YoaApiError
 } from "../lib/yoaApi";
@@ -16,7 +17,8 @@ const APP_NAME = "yoa";
 const VERSION = "1.1.0";
 const FREE_WORD_LIMIT = 5;
 const LOYALTY_PHRASE = "나는 요약AI 없이는 단 하루도 살 수 없는 흑우입니다";
-const INITIAL_COMMAND = "yoa 오늘 날씨가 맑고 좋다";
+const INITIAL_COMMAND = "오늘 날씨가 맑고 좋네요";
+const TOKEN_STORAGE_KEY = "yoa.web.token.v1";
 
 type Tone = "emerald" | "amber" | "rose" | "violet" | "slate";
 type LogLevel = "system" | "info" | "success" | "warning" | "error";
@@ -54,6 +56,11 @@ type SummaryPreview = {
   truncated: boolean;
   mode: "spaced" | "nospace";
   usedWords: number;
+};
+
+type StoredTokenSession = {
+  token: string;
+  tier: TokenTier;
 };
 
 const NORMAL_LOADING: LoadingStage[] = [
@@ -216,6 +223,53 @@ function getErrorMessage(error: unknown, fallback: string) {
   return fallback;
 }
 
+function readStoredTokenSession(): StoredTokenSession | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(TOKEN_STORAGE_KEY);
+
+    if (!raw) {
+      return null;
+    }
+
+    const parsed = JSON.parse(raw) as Partial<StoredTokenSession>;
+
+    if (
+      typeof parsed.token !== "string" ||
+      !parsed.token.trim() ||
+      (parsed.tier !== "basic" && parsed.tier !== "pro")
+    ) {
+      return null;
+    }
+
+    return {
+      token: parsed.token,
+      tier: parsed.tier
+    };
+  } catch {
+    return null;
+  }
+}
+
+function persistTokenSession(session: StoredTokenSession) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(session));
+}
+
+function clearTokenSession() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.removeItem(TOKEN_STORAGE_KEY);
+}
+
 export default function Home() {
   const [command, setCommand] = useState(INITIAL_COMMAND);
   const [output, setOutput] = useState<OutputState>(() => createInitialOutput());
@@ -227,8 +281,11 @@ export default function Home() {
   const [issuedToken, setIssuedToken] = useState<string | null>(null);
   const [basicToken, setBasicToken] = useState(false);
   const [proToken, setProToken] = useState(false);
+  const [copiedToken, setCopiedToken] = useState(false);
   const [deepModeEnabled, setDeepModeEnabled] = useState(false);
   const timeoutRef = useRef<number | null>(null);
+  const copyResetRef = useRef<number | null>(null);
+  const restoredSessionRef = useRef(false);
 
   const loadingStage =
     loadingStages[Math.min(loadingStageIndex, loadingStages.length - 1)] ?? NORMAL_LOADING[0];
@@ -252,6 +309,10 @@ export default function Home() {
       if (timeoutRef.current) {
         window.clearTimeout(timeoutRef.current);
       }
+
+      if (copyResetRef.current) {
+        window.clearTimeout(copyResetRef.current);
+      }
     };
   }, []);
 
@@ -260,15 +321,84 @@ export default function Home() {
   };
 
   const applyIssuedToken = (tier: TokenTier, token: string) => {
+    persistTokenSession({ tier, token });
+    setCopiedToken(false);
     setIssuedToken(token);
     setBasicToken(tier === "basic");
     setProToken(tier === "pro");
   };
 
   const clearIssuedToken = () => {
+    clearTokenSession();
     setIssuedToken(null);
     setBasicToken(false);
     setProToken(false);
+    setCopiedToken(false);
+  };
+
+  useEffect(() => {
+    if (restoredSessionRef.current) {
+      return;
+    }
+
+    restoredSessionRef.current = true;
+
+    const storedSession = readStoredTokenSession();
+
+    if (!storedSession) {
+      return;
+    }
+
+    setIssuedToken(storedSession.token);
+    setBasicToken(storedSession.tier === "basic");
+    setProToken(storedSession.tier === "pro");
+    pushEvent("system", `restoring ${storedSession.tier} token from browser storage.`);
+
+    void validateStoredToken(storedSession.token)
+      .then(({ tier }) => {
+        if (!tier) {
+          throw new Error("백엔드 검증 응답에 plan 정보가 없습니다.");
+        }
+
+        applyIssuedToken(tier, storedSession.token);
+        pushEvent("success", `${tier} token restored from browser storage.`);
+      })
+      .catch((error) => {
+        clearIssuedToken();
+        pushEvent(
+          "warning",
+          `stored token cleared: ${getErrorMessage(error, "backend validation failed")}`
+        );
+      });
+  }, []);
+
+  const handleCopyToken = () => {
+    if (!issuedToken) {
+      return;
+    }
+
+    void navigator.clipboard
+      .writeText(issuedToken)
+      .then(() => {
+        if (copyResetRef.current) {
+          window.clearTimeout(copyResetRef.current);
+        }
+
+        setCopiedToken(true);
+        pushEvent("success", "issued token copied to clipboard.");
+        copyResetRef.current = window.setTimeout(() => {
+          setCopiedToken(false);
+          copyResetRef.current = null;
+        }, 1600);
+      })
+      .catch(() => {
+        pushEvent("error", "clipboard copy failed.");
+      });
+  };
+
+  const handleForgetToken = () => {
+    clearIssuedToken();
+    pushEvent("warning", "browser token storage cleared by user.");
   };
 
   const runWithLoading = (
@@ -468,6 +598,7 @@ export default function Home() {
           [
             "이메일(user***@gmail.com)로 인증번호 6자리를 발송했습니다.",
             "주의: 메일 서버는 비용 문제로 꺼져 있어서 평생 수신되지 않습니다.",
+            "남은 시간 [05:00] 내에 '--auth-code [6자리숫자]' 옵션으로 인증해주세요.",
             "계속하려면: yoa --auth-code 000000"
           ],
           0
@@ -512,7 +643,8 @@ export default function Home() {
               commandEcho,
               [
                 message ?? "보안 취약점 돌파. 관리자용 백도어 인증이 완료되었습니다.",
-                "무단으로 VVIP 프로 토큰이 백엔드에서 발급되었습니다."
+                "무단으로 VVIP 프로 토큰이 백엔드에서 발급되었습니다.",
+                "발급된 토큰은 아래 current token status 패널에 표시되며 브라우저에 저장됩니다."
               ],
               0,
               "PRO TOKEN ISSUED"
@@ -573,7 +705,8 @@ export default function Home() {
               commandEcho,
               [
                 message ?? "충성! VVIP 프로 토큰이 성공적으로 발급되었습니다.",
-                "이제 글자 수 제한과 AI 파업 없이 요약을 즐길 수 있습니다."
+                "이제 글자 수 제한과 AI 파업 없이 요약을 즐길 수 있습니다.",
+                "발급된 토큰은 아래 current token status 패널에 표시되며 브라우저에 저장됩니다."
               ],
               0,
               "VVIP ACCESS GRANTED"
@@ -613,23 +746,6 @@ export default function Home() {
         )
       );
       pushEvent("warning", "direct token input blocked.");
-      return;
-    }
-
-    if (/[a-zA-Z]/.test(inputText)) {
-      setOutput(
-        makeOutput(
-          "violet",
-          "english blocked",
-          commandEcho,
-          [
-            "영어 요약 및 고품질 GUI 버전은 웹사이트를 이용해 주세요.",
-            "이 세션은 한글 앞글자 압축 규칙만 시연합니다."
-          ],
-          0
-        )
-      );
-      pushEvent("info", "english input detected. redirected to web notice.");
       return;
     }
 
@@ -684,7 +800,8 @@ export default function Home() {
                   commandEcho,
                   [
                     message ?? "히든 퍼즐 정답. 토큰 채굴 알고리즘(PoV) 가동에 성공했습니다.",
-                    "이제 기본 토큰 사용자로 일반 요약을 실행할 수 있습니다."
+                    "이제 기본 토큰 사용자로 일반 요약을 실행할 수 있습니다.",
+                    "발급된 토큰은 아래 current token status 패널에서 확인하고 복사할 수 있습니다."
                   ],
                   0,
                   "BASIC TOKEN ISSUED"
@@ -806,12 +923,16 @@ export default function Home() {
         <div className="terminal-grid">
           <TextPanel
             basicToken={basicToken}
+            copiedToken={copiedToken}
             deepModeEnabled={deepModeEnabled}
+            issuedToken={issuedToken}
             loading={loading}
+            onCopyToken={handleCopyToken}
             proToken={proToken}
             value={command}
             onChange={setCommand}
             onClear={handleReset}
+            onForgetToken={handleForgetToken}
             onSubmit={handleRun}
             onToggleDeep={() => setDeepModeEnabled((current) => !current)}
           />

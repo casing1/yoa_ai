@@ -377,6 +377,61 @@ textarea::-webkit-scrollbar-thumb,
   color: rgba(243, 232, 255, 0.94);
 }
 
+.runtime-token-card {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.85rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(52, 211, 153, 0.14);
+  background:
+    linear-gradient(180deg, rgba(6, 16, 15, 0.94), rgba(4, 10, 10, 0.9)),
+    rgba(0, 0, 0, 0.22);
+}
+
+.runtime-token-meta {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.runtime-token-label,
+.runtime-token-caption,
+.runtime-token-empty {
+  margin: 0;
+}
+
+.runtime-token-label {
+  color: rgba(167, 243, 208, 0.92);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.runtime-token-caption,
+.runtime-token-empty {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  line-height: 1.6;
+}
+
+.runtime-token-value {
+  display: block;
+  overflow-wrap: anywhere;
+  padding: 0.8rem 0.9rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(236, 253, 245, 0.96);
+  font-size: 0.82rem;
+  line-height: 1.65;
+}
+
+.runtime-token-actions {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
 .terminal-footer {
   display: flex;
   gap: 0.8rem;

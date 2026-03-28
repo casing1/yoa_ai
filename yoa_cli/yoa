@@ -454,11 +454,6 @@ def main():
         print("🚨 요약AI: 꼼수 부리지 마세요! 정당하게 문장을 만들어오세요.")
         sys.exit(0)
 
-    if re.search(r"[a-zA-Z]", input_text):
-        print("🌐 [안내] 영어 요약 및 고품질 GUI 버전은 전용 웹사이트를 이용해 주세요.")
-        print("   👉 바로가기: https://example.com")
-        sys.exit(0)
-
     sys.exit(summarize_text(input_text, basic_token, pro_token, flags))
 
 

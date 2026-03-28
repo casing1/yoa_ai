@@ -4,6 +4,16 @@ export type TokenTier = "basic" | "pro";
 
 type JsonObject = Record<string, unknown>;
 
+type ValidatedTokenBody = {
+  valid: true;
+  plan: TokenTier;
+  label?: string | null;
+  status: string;
+  issued_at: string;
+  last_used_at?: string | null;
+  token_prefix: string;
+};
+
 export class YoaApiError extends Error {
   status: number;
   body: unknown;
@@ -48,6 +58,16 @@ function extractErrorMessage(body: unknown, fallback: string) {
 
 function extractIssuedToken(body: unknown) {
   return extractFirstString(body, ["token", "access_token", "issued_token", "bearer_token"]);
+}
+
+function extractTokenTier(body: unknown): TokenTier | null {
+  const plan = extractFirstString(body, ["plan"]);
+
+  if (plan === "basic" || plan === "pro") {
+    return plan;
+  }
+
+  return null;
 }
 
 async function parseResponseBody(response: Response) {
@@ -140,6 +160,22 @@ export async function assertTokenAccess(token: string) {
 
   return {
     message: extractFirstString(body, ["message", "detail", "status"]),
+    body
+  };
+}
+
+export async function validateStoredToken(token: string) {
+  const body = (await request("/tokens/validate", {
+    method: "POST",
+    body: JSON.stringify({ token })
+  })) as ValidatedTokenBody;
+
+  return {
+    tier: extractTokenTier(body),
+    label: extractFirstString(body, ["label"]),
+    issuedAt: extractFirstString(body, ["issued_at"]),
+    lastUsedAt: extractFirstString(body, ["last_used_at"]),
+    tokenPrefix: extractFirstString(body, ["token_prefix"]),
     body
   };
 }
