@@ -1,0 +1,16 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+node_modules/
+.next/
+out/
+dist/
+coverage/
+.vercel/
+*.log
+*.tsbuildinfo
