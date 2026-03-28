@@ -61,7 +61,7 @@ export function TextPanel({
       <div className="terminal-window-body">
         <div className="terminal-hint-line">
           <span className="terminal-prompt">guest@yoa:~$</span>
-          <span>Ctrl/Cmd + Enter 로 실행</span>
+          <span>Ctrl/Cmd + Enter 로 실행 · 예시: yoa --help</span>
         </div>
 
         <div className="runtime-object">
@@ -113,7 +113,7 @@ export function TextPanel({
         <textarea
           className="terminal-textarea"
           disabled={loading}
-          placeholder={`오늘 날씨가 맑고 좋네요\nyoa --help`}
+          placeholder="오늘 날씨가 맑고 좋네요"
           value={value}
           onChange={(event) => onChange(event.target.value)}
           onKeyDown={(event) => {
