@@ -223,6 +223,16 @@ function getErrorMessage(error: unknown, fallback: string) {
   return fallback;
 }
 
+function showAiSuggestionAlert(message: string) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.setTimeout(() => {
+    window.alert(message);
+  }, 0);
+}
+
 function readStoredTokenSession(): StoredTokenSession | null {
   if (typeof window === "undefined") {
     return null;
@@ -882,7 +892,7 @@ export default function Home() {
           pushEvent("success", `summary emitted: [${preview.output}]`);
 
           if (Math.random() < 0.2) {
-            pushEvent("info", "AI의 추가 제언: 사실 이 문장은 요약할 가치도 없습니다.");
+            showAiSuggestionAlert("AI의 추가 제언: 사실 이 문장은 요약할 가치도 없습니다.");
           }
         })
         .catch((error) => {
