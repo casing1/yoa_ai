@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import os
-import re
 from functools import lru_cache
 from pathlib import Path
 from typing import Annotated, Literal
@@ -158,8 +157,6 @@ def evaluate_basic_claim(input_text):
         return False, "empty_input", None
     if normalized == "토큰":
         return False, "cheat_input", None
-    if re.search(r"[a-zA-Z]", normalized):
-        return False, "english_not_allowed", None
 
     summary_result = summarize_candidate(normalized)
     if summary_result != "토큰":

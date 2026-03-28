@@ -749,23 +749,6 @@ export default function Home() {
       return;
     }
 
-    if (/[a-zA-Z]/.test(inputText)) {
-      setOutput(
-        makeOutput(
-          "violet",
-          "english blocked",
-          commandEcho,
-          [
-            "영어 요약 및 고품질 GUI 버전은 웹사이트를 이용해 주세요.",
-            "이 세션은 한글 앞글자 압축 규칙만 시연합니다."
-          ],
-          0
-        )
-      );
-      pushEvent("info", "english input detected. redirected to web notice.");
-      return;
-    }
-
     const snapshotToken = issuedToken;
     const snapshotBasic = basicToken;
     const snapshotPro = proToken;
