@@ -12,7 +12,10 @@ from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import BaseModel, Field
 
-from store import TokenStore
+try:
+    from .store import TokenStore
+except ImportError:
+    from store import TokenStore
 
 
 LOYALTY_PHRASE = "나는 요약AI 없이는 단 하루도 살 수 없는 흑우입니다"

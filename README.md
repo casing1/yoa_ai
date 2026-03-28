@@ -1,28 +1,23 @@
 # yoa Backend
 
-`yoa` CLI에 숨어 있던 토큰 규칙만 HTTP API로 분리한 FastAPI 백엔드입니다.
+`be` 브랜치는 백엔드 전용 브랜치이고, 실제 서버 코드는 `be/` 폴더 아래에 있습니다.
 
 핵심 구성:
 
 - `FastAPI` 기반 API 서버
 - `Supabase Postgres` 기반 토큰 저장
 - Swagger 문서 자동 노출: `/docs`
-- 이 브랜치 자체가 백엔드 프로젝트 루트
-- Vercel 배포용 엔트리포인트: `app.py`
+- Vercel 루트 엔트리포인트: `app.py`
+- 실제 백엔드 모듈: `be/`
 
-## 토큰 규칙
+## 구조
 
-기본 토큰:
-
-- 입력에 띄어쓰기가 있으면 각 단어의 첫 글자를 이어 붙입니다.
-- 띄어쓰기가 없으면 3글자마다 한 글자씩 뽑습니다.
-- 결과가 정확히 `토큰`이면 `basic` 토큰을 발급합니다.
-- 입력값 자체가 `토큰`이거나 영어 알파벳이 섞이면 발급하지 않습니다.
-
-프로 토큰:
-
-- `auth_code == "000000"`
-- 또는 `loyalty_phrase == "나는 요약AI 없이는 단 하루도 살 수 없는 흑우입니다"`
+- `be/server.py`: FastAPI 앱과 API 엔드포인트
+- `be/store.py`: Supabase 토큰 저장소
+- `be/sql/tokens.sql`: 토큰 테이블 생성 SQL
+- `app.py`: Vercel 엔트리포인트
+- `.env.example`: 환경변수 예시
+- `.gitignore`: 로컬 비밀값/가상환경 제외
 
 ## 빠른 시작
 
@@ -31,7 +26,7 @@ cp .env.example .env
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn server:app --reload
+uvicorn be.server:app --reload
 ```
 
 기본 주소:
@@ -53,7 +48,7 @@ uvicorn server:app --reload
 
 ## SQL
 
-Supabase SQL Editor에서 `sql/tokens.sql`을 실행하면 됩니다.
+Supabase SQL Editor에서 `be/sql/tokens.sql`을 실행하면 됩니다.
 
 ## 엔드포인트
 
