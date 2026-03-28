@@ -3,10 +3,14 @@ type TextPanelProps = {
   loading: boolean;
   basicToken: boolean;
   proToken: boolean;
+  issuedToken: string | null;
+  copiedToken: boolean;
   deepModeEnabled: boolean;
   onChange: (value: string) => void;
   onSubmit: () => void;
   onClear: () => void;
+  onCopyToken: () => void;
+  onForgetToken: () => void;
   onToggleDeep: () => void;
 };
 
@@ -15,10 +19,14 @@ export function TextPanel({
   loading,
   basicToken,
   proToken,
+  issuedToken,
+  copiedToken,
   deepModeEnabled,
   onChange,
   onSubmit,
   onClear,
+  onCopyToken,
+  onForgetToken,
   onToggleDeep
 }: TextPanelProps) {
   const tokenTier = proToken ? "vip" : basicToken ? "basic" : "none";
@@ -27,6 +35,9 @@ export function TextPanel({
     : basicToken
       ? "기본 토큰 활성"
       : "토큰 없음";
+  const statusCaption = issuedToken
+    ? "CLI는 파일에, 웹은 이 브라우저에 토큰을 보관합니다."
+    : "토큰을 발급받으면 이 브라우저에 계속 유지됩니다.";
 
   return (
     <section className="terminal-window">
@@ -58,8 +69,45 @@ export function TextPanel({
 
           <div className="runtime-status-header">
             <span className={`runtime-status-chip is-${tokenTier}`}>{currentStatusLabel}</span>
-            <span className="runtime-status-caption">현재 단계가 자동으로 빛납니다.</span>
+            <span className="runtime-status-caption">{statusCaption}</span>
           </div>
+
+          {issuedToken ? (
+            <div className="runtime-token-card">
+              <div className="runtime-token-meta">
+                <p className="runtime-token-label">issued token</p>
+                <p className="runtime-token-caption">
+                  새로고침 후에도 유지됩니다. 필요하면 복사해 다른 곳에 보관하세요.
+                </p>
+              </div>
+
+              <code className="runtime-token-value">{issuedToken}</code>
+
+              <div className="runtime-token-actions">
+                <button
+                  type="button"
+                  className="secondary-button"
+                  disabled={loading}
+                  onClick={onCopyToken}
+                >
+                  {copiedToken ? "copied" : "copy token"}
+                </button>
+
+                <button
+                  type="button"
+                  className="secondary-button"
+                  disabled={loading}
+                  onClick={onForgetToken}
+                >
+                  forget token
+                </button>
+              </div>
+            </div>
+          ) : (
+            <p className="runtime-token-empty">
+              토큰을 발급받으면 여기에서 즉시 확인하고 복사할 수 있습니다.
+            </p>
+          )}
         </div>
 
         <textarea
