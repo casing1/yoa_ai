@@ -59,6 +59,65 @@ Supabase SQL Editor에서 `be/sql/tokens.sql`을 실행하면 됩니다.
 - `POST /tokens/validate`
 - `POST /tokens/revoke`
 
+### `GET /health`
+
+서버 상태 확인용 엔드포인트입니다.
+
+응답 예시:
+
+```json
+{
+  "status": "ok",
+  "service": "yoa-token-backend"
+}
+```
+
+### `POST /tokens/claim/basic`
+
+CLI 퍼즐 규칙으로 `basic` 토큰을 발급합니다.
+
+요청 예시:
+
+```json
+{
+  "input_text": "토마토 큰일났다",
+  "label": "demo-basic"
+}
+```
+
+### `POST /tokens/claim/pro`
+
+백도어 인증번호 또는 충성 문장으로 `pro` 토큰을 발급합니다.
+
+요청 예시:
+
+```json
+{
+  "auth_code": "000000",
+  "label": "demo-pro"
+}
+```
+
+### `GET /access`
+
+`Authorization: Bearer <token>` 헤더로 접근 가능 여부를 확인합니다.
+
+### `POST /tokens/validate`
+
+토큰을 바디 또는 Bearer 헤더로 전달해 유효성을 검사합니다.
+
+요청 예시:
+
+```json
+{
+  "token": "your-issued-token"
+}
+```
+
+### `POST /tokens/revoke`
+
+토큰을 폐기합니다. 바디 또는 Bearer 헤더로 전달할 수 있습니다.
+
 ## Vercel
 
 루트의 `app.py`와 `vercel.json` 기준으로 배포할 수 있습니다.
