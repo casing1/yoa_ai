@@ -88,7 +88,7 @@ const DEEP_LOADING: LoadingStage[] = [
     detail: "1000억 개 매개변수 최적화 중..."
   },
   {
-    label: "vvip.layer.sync()",
+    label: "vip.layer.sync()",
     detail: "웅장한 문구와 실제 1줄짜리 압축 결과를 정렬합니다."
   }
 ];
@@ -572,7 +572,7 @@ export default function Home() {
             "pro lounge",
             commandEcho,
             [
-              "이미 엔터프라이즈 VVIP 프로 라운지에 입장하셨습니다.",
+              "이미 엔터프라이즈 VIP 프로 라운지에 입장하셨습니다.",
               "무제한 요약을 마음껏 즐기십시오."
             ],
             0
@@ -653,7 +653,7 @@ export default function Home() {
               commandEcho,
               [
                 message ?? "보안 취약점 돌파. 관리자용 백도어 인증이 완료되었습니다.",
-                "무단으로 VVIP 프로 토큰이 백엔드에서 발급되었습니다.",
+                "무단으로 VIP 프로 토큰이 백엔드에서 발급되었습니다.",
                 "발급된 토큰은 아래 current token status 패널에 표시되며 브라우저에 저장됩니다."
               ],
               0,
@@ -714,12 +714,12 @@ export default function Home() {
               "loyalty accepted",
               commandEcho,
               [
-                message ?? "충성! VVIP 프로 토큰이 성공적으로 발급되었습니다.",
+                message ?? "충성! VIP 프로 토큰이 성공적으로 발급되었습니다.",
                 "이제 글자 수 제한과 AI 파업 없이 요약을 즐길 수 있습니다.",
                 "발급된 토큰은 아래 current token status 패널에 표시되며 브라우저에 저장됩니다."
               ],
               0,
-              "VVIP ACCESS GRANTED"
+              "VIP ACCESS GRANTED"
             )
           );
           pushEvent("success", "backend pro token issued via loyalty phrase.");
