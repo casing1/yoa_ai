@@ -488,6 +488,9 @@ export default function Home() {
             `Usage: ${APP_NAME} [OPTIONS] <문장>`,
             "--help / --version / --install / --uninstall / --print-shell-setup",
             "--pro / --auth / --auth-code CODE / --force / --deep",
+            "기본 토큰 힌트: 공백 문장은 첫 글자, 붙여 쓴 문장은 3글자마다 1글자씩 뽑습니다.",
+            "요약 결과가 '토큰'이면 기본 토큰이 발급됩니다.",
+            "프로 토큰 힌트: yoa --auth-code 000000 또는 충성 문장을 입력하세요.",
             `Example: ${APP_NAME} --deep 오늘 날씨가 맑고 좋다`
           ],
           0
