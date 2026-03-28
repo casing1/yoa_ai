@@ -113,7 +113,7 @@ export function TextPanel({
         <textarea
           className="terminal-textarea"
           disabled={loading}
-          placeholder={`yoa 오늘 날씨가 맑고 좋다\nyoa --auth\nyoa --auth-code 000000\nyoa --deep 토마토를 먹고 싶은데 돈이 없다`}
+          placeholder="오늘 날씨가 맑고 좋네요"
           value={value}
           onChange={(event) => onChange(event.target.value)}
           onKeyDown={(event) => {

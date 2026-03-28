@@ -17,7 +17,7 @@ const APP_NAME = "yoa";
 const VERSION = "1.1.0";
 const FREE_WORD_LIMIT = 5;
 const LOYALTY_PHRASE = "나는 요약AI 없이는 단 하루도 살 수 없는 흑우입니다";
-const INITIAL_COMMAND = "yoa 오늘 날씨가 맑고 좋다";
+const INITIAL_COMMAND = "오늘 날씨가 맑고 좋네요";
 const TOKEN_STORAGE_KEY = "yoa.web.token.v1";
 
 type Tone = "emerald" | "amber" | "rose" | "violet" | "slate";
