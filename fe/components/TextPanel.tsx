@@ -134,7 +134,7 @@ export function TextPanel({
               type="button"
               aria-pressed={deepModeEnabled}
               className={`secondary-button ${deepModeEnabled ? "is-active" : ""}`}
-              disabled={loading}
+              disabled={loading || !proToken}
               onClick={onToggleDeep}
             >
               {deepModeEnabled ? "deep on" : "deep off"}

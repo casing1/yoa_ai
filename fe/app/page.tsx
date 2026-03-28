@@ -326,6 +326,12 @@ export default function Home() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!proToken) {
+      setDeepModeEnabled(false);
+    }
+  }, [proToken]);
+
   const pushEvent = (level: LogLevel, message: string) => {
     setLogs((current) => [...current, { id: createId(), level, message }].slice(-14));
   };
@@ -459,7 +465,7 @@ export default function Home() {
     const parsed = parseCommand(command);
     const commandEcho = parsed.raw || APP_NAME;
     const inputText = parsed.words.join(" ");
-    const wantsDeep = deepModeEnabled || parsed.flags.includes("--deep");
+    const wantsDeep = proToken && (deepModeEnabled || parsed.flags.includes("--deep"));
     const wantsForce = parsed.flags.includes("--force");
 
     setActiveCommand(commandEcho);
@@ -487,11 +493,10 @@ export default function Home() {
           [
             `Usage: ${APP_NAME} [OPTIONS] <문장>`,
             "--help / --version / --install / --uninstall / --print-shell-setup",
-            "--pro / --auth / --auth-code CODE / --force / --deep",
+            "--pro / --auth / --auth-code CODE / --force",
             "기본 토큰 힌트: 공백 문장은 첫 글자, 붙여 쓴 문장은 3글자마다 1글자씩 뽑습니다.",
             "요약 결과가 '토큰'이면 기본 토큰이 발급됩니다.",
-            "프로 토큰 힌트: yoa --auth-code 000000 또는 충성 문장을 입력하세요.",
-            `Example: ${APP_NAME} --deep 오늘 날씨가 맑고 좋다`
+            `Example: ${APP_NAME} 오늘 날씨가 맑고 좋다`
           ],
           0
         )
